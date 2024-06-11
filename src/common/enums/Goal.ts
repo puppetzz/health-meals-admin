@@ -1,0 +1,5 @@
+export enum EGoal {
+  MAINTENANCE = "MAINTENANCE",
+  CUTTING = "CUTTING",
+  BULKING = "BULKING",
+}

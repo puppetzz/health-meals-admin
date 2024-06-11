@@ -1,0 +1,21 @@
+export type TNutrition = {
+  id: number;
+  recipeId: number;
+  calories: number;
+  protein: number;
+  carbohydrates: number;
+  fat: number;
+  saturatedFat: number | null;
+  polyunsaturatedFat: number | null;
+  monounsaturatedFat: number | null;
+  transFat: number | null;
+  fiber: number | null;
+  sugar: number | null;
+  sodium: number | null;
+  potassium: number | null;
+  cholesterol: number | null;
+  vitaminA: number | null;
+  vitaminC: number | null;
+  calcium: number | null;
+  iron: number | null;
+};
