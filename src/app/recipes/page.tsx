@@ -27,7 +27,6 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { useRecipesQuery } from '../../queries';
 import { useFoodCategoriesQuery } from '../../queries/useFoodCategories';
-import { late } from 'zod';
 
 export default function Recipes() {
   const [openedSearchBox, { toggle: toggleSearchBox }] = useDisclosure(false);
@@ -48,7 +47,7 @@ export default function Recipes() {
     page,
     pageSize,
     search,
-    category: searchParams.get('category') || '',
+    categoryId: Number(searchParams.get('categoryId')) || undefined,
   });
 
   const { data: foodCategories } = useFoodCategoriesQuery();
@@ -79,7 +78,7 @@ export default function Recipes() {
       const queryString = createQueryString({
         q: value,
         page: page.toString(),
-        category: searchParams.get('category') || '',
+        categoryId: searchParams.get('categoryId') || '',
         calories: searchParams.get('calories') || '',
         protein: searchParams.get('protein') || '',
         fat: searchParams.get('fat') || '',
@@ -99,7 +98,7 @@ export default function Recipes() {
       const queryString = createQueryString({
         q: searchParams.get('q') || '',
         page: page.toString(),
-        category: value,
+        categoryId: value,
         calories: searchParams.get('calories') || '',
         protein: searchParams.get('protein') || '',
         fat: searchParams.get('fat') || '',
@@ -116,7 +115,7 @@ export default function Recipes() {
   const recipes = useMemo(() => {
     if (!data) return [];
 
-    return data.data.data;
+    return data.data.recipes;
   }, [data]);
 
   useEffect(() => {
@@ -214,22 +213,22 @@ export default function Recipes() {
                 </Table.Td>
                 <div className="flex justify-between flex-1 ml-3">
                   <Table.Td className="flex gap-2 items-center font-semibold w-72">
-                    <Avatar src={recipe.thumbnail} radius="sm" />
-                    {recipe.title}
+                    <Avatar src={recipe.post.thumbnail} radius="sm" />
+                    {recipe.post.title}
                   </Table.Td>
                   <Table.Td className="w-60">
-                    {recipe.author?.fullName}
+                    {recipe.post.author?.fullName}
                   </Table.Td>
                   <Table.Td className="w-32">
-                    {recipe.recipe?.recipeFoodCategory
+                    {recipe.recipeFoodCategory
                       .map((foodCategory) => foodCategory.foodCategory.name)
                       .join(', ')}
                   </Table.Td>
                   <Table.Td className="uppercase w-24">
-                    {recipe.status}
+                    {recipe.post.status}
                   </Table.Td>
                   <Table.Td className="w-28">
-                    <Rating value={recipe.rating || 0} readOnly />
+                    <Rating value={recipe.post.rating || 0} readOnly />
                   </Table.Td>
                   <Table.Td className="w-32">
                     <div className="flex gap-2">
@@ -237,7 +236,9 @@ export default function Recipes() {
                         variant="filled"
                         aria-label="view"
                         color="green"
-                        onClick={() => router.push(`/recipes/${recipe.id}`)}
+                        onClick={() =>
+                          router.push(`/recipes/${recipe.post.id}`)
+                        }
                       >
                         <IconEye
                           style={{ width: '70%', height: '70%' }}
@@ -249,7 +250,7 @@ export default function Recipes() {
                         aria-label="edit"
                         color="blue"
                         onClick={() =>
-                          router.push(`/recipes/${recipe.id}/update`)
+                          router.push(`/recipes/${recipe.post.id}/update`)
                         }
                       >
                         <IconEdit

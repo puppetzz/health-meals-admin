@@ -34,6 +34,7 @@ import { useMealPlanMutation } from '../../../mutation';
 import { MealPlanPreviewBlock } from '../../../components/meal-plan/MealPlanPreviewBlock';
 import { useRouter } from 'next/navigation';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { TRecipe } from '../../../common/types/Recipes';
 
 const BlockNote = dynamic(
   () => import('../../../components/blog/BlockNote').then((mod) => mod.default),
@@ -61,7 +62,7 @@ export default function MealPlanCreation() {
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
   const [frequency, setFrequency] = useState<string>(EMealPlanFrequency.DAILY);
-  const [selectedRecipes, setSelectedRecipes] = useState<TPost[][]>([[]]);
+  const [selectedRecipes, setSelectedRecipes] = useState<TRecipe[][]>([[]]);
   const [openedMealPlan, setOpenedMealPlan] = useState<boolean[]>(
     [...Array(7)].map(() => true)
   );
@@ -298,6 +299,7 @@ export default function MealPlanCreation() {
         status,
         frequency: frequency as EMealPlanFrequency,
         mealPlanRecipes: recipes,
+        mealPerDay: Number(numberOfMeals),
       })
       .then(() => {
         router.push('/meal-plans');

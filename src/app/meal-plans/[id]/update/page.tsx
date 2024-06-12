@@ -10,7 +10,6 @@ import {
   Stepper,
 } from '@mantine/core';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useDisclosure } from '@mantine/hooks';
 import { EMealPlanFrequency } from '../../../../common/enums/MealPlanFrequency';
 import { EGoal } from '../../../../common/enums/Goal';
 import { ECarbsType } from '../../../../common/enums/CarbsType';
@@ -29,7 +28,6 @@ import {
 } from '../../../../queries';
 import { TMealPlanRecipeRequest } from '../../../../common/types/meal-plan/CreateMealPlan';
 import { EMealPlanStatus } from '../../../../common/enums/MealPlanStatus';
-import { TPost } from '../../../../common/types/Post';
 import Image from 'next/image';
 import { numberWithCommas } from '../../../../utils/numberCommasFormat';
 import { notifications } from '@mantine/notifications';
@@ -37,6 +35,8 @@ import { useMealPlanMutation } from '../../../../mutation';
 import { MealPlanPreviewBlock } from '../../../../components/meal-plan/MealPlanPreviewBlock';
 import { useRouter } from 'next/navigation';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { TRecipe } from '../../../../common/types/Recipes';
+import { useUpdateMealPlanMutation } from '../../../../mutation/useUpdateMealPlan';
 
 const BlockNote = dynamic(
   () =>
@@ -67,7 +67,7 @@ export default function UpdateMealPlan({ params }: { params: { id: number } }) {
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
   const [frequency, setFrequency] = useState<string>(EMealPlanFrequency.DAILY);
-  const [selectedRecipes, setSelectedRecipes] = useState<TPost[][]>([[]]);
+  const [selectedRecipes, setSelectedRecipes] = useState<TRecipe[][]>([[]]);
   const [openedMealPlan, setOpenedMealPlan] = useState<boolean[]>(
     [...Array(7)].map(() => true)
   );
@@ -90,7 +90,7 @@ export default function UpdateMealPlan({ params }: { params: { id: number } }) {
   const { data: healthMetrics } = useHealthMetricsQuery();
   const { data: mealPlan } = useMealPlanByIdQuery(Number(params.id));
 
-  const mealPlanMutation = useMealPlanMutation();
+  const updateMealPlanMutation = useUpdateMealPlanMutation();
 
   const calDetailMacronutrientPerMeal = useCallback(
     (calories: number, carbsType: ECarbsType) => {
@@ -281,7 +281,13 @@ export default function UpdateMealPlan({ params }: { params: { id: number } }) {
       macronutrient,
       detailCaloriesOfMeals,
     };
-  }, [healthMetrics, goal, carbsType, numberOfMeals]);
+  }, [
+    healthMetrics,
+    goal,
+    carbsType,
+    numberOfMeals,
+    calDetailMacronutrientPerMeal,
+  ]);
 
   const handleCreateDraft = () => {
     if (!title) {
@@ -297,11 +303,11 @@ export default function UpdateMealPlan({ params }: { params: { id: number } }) {
 
     const recipes = mealPlanRecipes.flat();
 
-    mealPlanMutation
+    updateMealPlanMutation
       .mutateAsync({
+        id: mealPlan?.data.id as number,
         title,
         content,
-        status,
         frequency: frequency as EMealPlanFrequency,
         mealPlanRecipes: recipes,
         mealPerDay: Number(numberOfMeals),
@@ -329,8 +335,12 @@ export default function UpdateMealPlan({ params }: { params: { id: number } }) {
 
       switch (mealPlan.data.frequency) {
         case EMealPlanFrequency.DAILY: {
+          const recipes: TRecipe[] = [];
+
           const mealPlanRecipes: TMealPlanRecipeRequest[] =
             mealPlan.data.mealPlanRecipe.map((mealPlanRecipe) => {
+              recipes.push(mealPlanRecipe.recipe);
+
               return {
                 recipeId: mealPlanRecipe.recipeId,
                 day: mealPlanRecipe.day,
@@ -339,9 +349,11 @@ export default function UpdateMealPlan({ params }: { params: { id: number } }) {
             });
 
           setMealPlanRecipes([mealPlanRecipes]);
+          setSelectedRecipes([recipes]);
           break;
         }
         case EMealPlanFrequency.WEEKLY: {
+          const recipes: TRecipe[][] = [[]];
           const mealPlanRecipes: TMealPlanRecipeRequest[][] =
             mealPlan.data.mealPlanRecipe.reduce(
               (result, mealPlanRecipe) => {
@@ -353,15 +365,18 @@ export default function UpdateMealPlan({ params }: { params: { id: number } }) {
 
                 if (!result[mealPlanRecipe.day - 1]) {
                   result.push([mealPlanRequest]);
+                  recipes.push([mealPlanRecipe.recipe]);
                 }
 
                 result[mealPlanRecipe.day - 1].push(mealPlanRequest);
+                recipes[mealPlanRecipe.day - 1].push(mealPlanRecipe.recipe);
 
                 return result;
               },
               [[]] as TMealPlanRecipeRequest[][]
             );
           setMealPlanRecipes(mealPlanRecipes);
+          setSelectedRecipes(recipes);
           break;
         }
         case EMealPlanFrequency.MONTHLY:

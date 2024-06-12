@@ -6,7 +6,6 @@ export type TGetRecipesReq = {
   categoryId?: number;
   search?: string;
   searchBy?: ERecipesSearchOption;
-  category?: string;
   calories?: number[];
   protein?: number[];
   fat?: number[];

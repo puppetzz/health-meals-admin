@@ -5,12 +5,13 @@ import { TCreateRecipeRequest } from '../common/types/request/recipes/CreateReci
 import { TGetRecipesReq } from '../common/types/request/recipes/GetRecipes';
 import { TUpdateRecipeRequest } from '../common/types/request/recipes/UpdateRecipe';
 import { TPostPaginationResponse } from '../common/types/response/PostPagination';
+import { TRecipesPaginationResponse } from '../common/types/response/RecipesPagination';
 import axiosClient from '../lib/axiosClient';
 
 export const getRecipes = async (
   getRecipeReq: TGetRecipesReq
-): Promise<TResponse<TPostPaginationResponse>> => {
-  const response = await axiosClient<TResponse<TPostPaginationResponse>>(
+): Promise<TResponse<TRecipesPaginationResponse>> => {
+  const response = await axiosClient<TResponse<TRecipesPaginationResponse>>(
     API.RECIPES,
     {
       params: getRecipeReq,

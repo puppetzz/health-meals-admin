@@ -15,5 +15,5 @@ export type TRecipe = {
   nutrition: TNutrition;
   recipeFoodCategory: TRecipeFoodCategory[];
   ingredient: TIngredient[];
-  post?: TPost;
+  post: TPost;
 };

@@ -6,7 +6,6 @@ import { Anchor, Breadcrumbs, Group, Text } from '@mantine/core';
 import { Image } from '@mantine/core';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
-import { CreatePostSidebar } from '../../../../components/sidebar/CreatePostSidebar';
 import {
   useFoodCategoriesQuery,
   usePostCategoriesQuery,
@@ -16,16 +15,15 @@ import { TFoodCategory } from '../../../../common/types/FoodCategory';
 import { TPostCategory } from '../../../../common/types/PostCategory';
 import dynamic from 'next/dynamic';
 import { notifications } from '@mantine/notifications';
-import { POST_CONTENT_LOCAL_STORAGE_KEY } from '../../../../common/constants/general';
 import { IngredientForm } from '../../../../components/forms/IngredientForm';
 import { TNutritionInputFields } from '../../../../common/types/form/NutritionInputField';
 import { TRecipeOptionInputField } from '../../../../common/types/form/RecipeOptionInputField';
-import { useCreateRecipeMutation } from '../../../../mutation/useCreateRecipe';
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
 import { EditPostSidebar } from '../../../../components/sidebar/EditPostSidebar';
 import { TUpdateRecipeRequest } from '../../../../common/types/request/recipes/UpdateRecipe';
 import { useUpdateRecipeMutation } from '../../../../mutation/useUpdateRecipe';
 import { TIngredientRequest } from '../../../../common/types/request/recipes/Ingredient';
+import { useRouter } from 'next/navigation';
 
 const BlockNote = dynamic(
   () =>
@@ -36,6 +34,8 @@ const BlockNote = dynamic(
 );
 
 export default function EditRecipes({ params }: { params: { id: string } }) {
+  const router = useRouter();
+
   const { data: recipe } = useRecipeByIdQuery(params.id);
 
   const isInitialDataRef = useRef<boolean>(true);
@@ -209,7 +209,14 @@ export default function EditRecipes({ params }: { params: { id: string } }) {
       foodCategoryIds: foodCategories,
     };
 
-    updateRecipeMutation.mutate(data);
+    updateRecipeMutation.mutateAsync(data).then(() => {
+      notifications.show({
+        title: 'Update Recipe',
+        color: 'green',
+        message: 'Update recipe successfully!',
+      });
+      router.push('/recipes');
+    });
   };
 
   useEffect(() => {

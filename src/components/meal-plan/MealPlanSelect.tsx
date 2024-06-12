@@ -10,6 +10,7 @@ import { SearchRecipesModal } from '../modals/SearchRecipesModal';
 import { TPost } from '../../common/types/Post';
 import { RecipeSelectedBox } from './RecipeSelectedBox';
 import { EMealPlanFrequency } from '../../common/enums/MealPlanFrequency';
+import { TRecipe } from '../../common/types/Recipes';
 
 type MealPlanSelectProps = {
   tdee: number;
@@ -18,8 +19,8 @@ type MealPlanSelectProps = {
     React.SetStateAction<TMealPlanRecipeRequest[][]>
   >;
   healthMetricsForGoals: THealthMetricsTarget;
-  selectedRecipes: TPost[][];
-  setSelectedRecipes: React.Dispatch<React.SetStateAction<TPost[][]>>;
+  selectedRecipes: TRecipe[][];
+  setSelectedRecipes: React.Dispatch<React.SetStateAction<TRecipe[][]>>;
   totalMacronutrient: TNutritionPerMeal;
   setTotalMacronutrient: React.Dispatch<
     React.SetStateAction<TNutritionPerMeal>
@@ -40,11 +41,11 @@ export function MealPlanSelect({
 }: MealPlanSelectProps) {
   const [opened, { open, close }] = useDisclosure(false);
   const [meal, setMeal] = useState(1);
-  const [recipeEditing, setRecipeEditing] = useState<TPost>();
+  const [recipeEditing, setRecipeEditing] = useState<TRecipe>();
 
   const handleClickRecipe = (
     mealPlanRecipe: TMealPlanRecipeRequest,
-    recipe: TPost,
+    recipe: TRecipe,
     day: number,
     meal: number
   ) => {
@@ -67,13 +68,10 @@ export function MealPlanSelect({
     setTotalMacronutrient((prev) => {
       if (recipeEditing) {
         return {
-          calories:
-            prev.calories - (recipeEditing.recipe?.nutrition.calories || 0),
-          protein:
-            prev.protein - (recipeEditing.recipe?.nutrition.protein || 0),
-          fat: prev.fat - (recipeEditing.recipe?.nutrition.fat || 0),
-          carbs:
-            prev.carbs - (recipeEditing.recipe?.nutrition.carbohydrates || 0),
+          calories: prev.calories - (recipeEditing.nutrition.calories || 0),
+          protein: prev.protein - (recipeEditing.nutrition.protein || 0),
+          fat: prev.fat - (recipeEditing.nutrition.fat || 0),
+          carbs: prev.carbs - (recipeEditing.nutrition.carbohydrates || 0),
         };
       }
       return prev;

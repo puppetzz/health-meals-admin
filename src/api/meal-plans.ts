@@ -3,6 +3,7 @@ import { TResponse } from '../common/types';
 import { TCreateMealPlanRequest } from '../common/types/meal-plan/CreateMealPlan';
 import { TMealPlan } from '../common/types/MealPlan';
 import { TMealPlansRequest } from '../common/types/request/meal-plan/MealPlans';
+import { TUpdateMealPlanRequest } from '../common/types/request/meal-plan/UpdateMealPlan';
 import { MealPlanPagination } from '../common/types/response/MealPlanPagination';
 import axiosClient from '../lib/axiosClient';
 
@@ -40,6 +41,16 @@ export const deleteMealPlan = async (id: number) => {
   const response = await axiosClient<TResponse<null>>({
     url: `${API.MEAL_PLANS}/${id}`,
     method: 'DELETE',
+  });
+
+  return response.data;
+};
+
+export const updateMealPlan = async (data: TUpdateMealPlanRequest) => {
+  const response = await axiosClient<TResponse<TMealPlan>>({
+    url: API.MEAL_PLANS,
+    method: 'PUT',
+    data,
   });
 
   return response.data;

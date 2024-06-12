@@ -4,15 +4,16 @@ import { Avatar } from '@mantine/core';
 import { TPost } from '../../common/types/Post';
 import { TNutritionPerMeal } from '../../common/types/form/HealthMetricsTarget';
 import { IconEdit } from '@tabler/icons-react';
+import { TRecipe } from '../../common/types/Recipes';
 
 type RecipeSelectedBoxProps = {
-  recipe: TPost;
+  recipe: TRecipe;
   setMeal: React.Dispatch<React.SetStateAction<number>>;
   meal: number;
   openSelectedRecipeModal: () => void;
   title: string;
   macronutrientPerMeal?: TNutritionPerMeal;
-  setRecipeEditing: React.Dispatch<React.SetStateAction<TPost | undefined>>;
+  setRecipeEditing: React.Dispatch<React.SetStateAction<TRecipe | undefined>>;
   setCurrentDay?: React.Dispatch<React.SetStateAction<number>>;
   currentDay?: number;
 };
@@ -51,33 +52,33 @@ export function RecipeSelectedBox({
       </div>
       {!!recipe && recipe?.id ? (
         <div className="flex gap-2">
-          <Avatar size="125" src={recipe.thumbnail} radius="md" />
+          <Avatar size="125" src={recipe.post.thumbnail} radius="md" />
           <div className="flex flex-1 flex-col">
             <div>
-              <span className="text-xl font-bold">{recipe.title}</span>
+              <span className="text-xl font-bold">{recipe.post.title}</span>
             </div>
             <div className="mt-auto flex w-full justify-between">
               <div className="flex w-[450px] rounded-xl bg-[#ed8537] py-2 text-white">
                 <div className="flex w-1/4 flex-col items-center border-r-[0.5px]">
-                  <span className="text-xl font-bold">{`${recipe.recipe?.nutrition.calories}cal`}</span>
+                  <span className="text-xl font-bold">{`${recipe.nutrition.calories}cal`}</span>
                   <span className="text-sm font-semibold text-[#f7c7b3]">
                     calories
                   </span>
                 </div>
                 <div className="flex w-1/4 flex-col items-center border-x-[0.5px]">
-                  <span className="text-xl font-bold">{`${recipe.recipe?.nutrition.protein}g`}</span>
+                  <span className="text-xl font-bold">{`${recipe.nutrition.protein}g`}</span>
                   <span className="text-sm font-semibold text-[#f7c7b3]">
                     protein
                   </span>
                 </div>
                 <div className="flex w-1/4 flex-col items-center border-x-[0.5px]">
-                  <span className="text-xl font-bold">{`${recipe.recipe?.nutrition.fat}g`}</span>
+                  <span className="text-xl font-bold">{`${recipe.nutrition.fat}g`}</span>
                   <span className="text-sm font-semibold text-[#f7c7b3]">
                     fat
                   </span>
                 </div>
                 <div className="flex w-1/4 flex-col items-center border-l-[0.5px]">
-                  <span className="text-xl font-bold">{`${recipe.recipe?.nutrition.carbohydrates}g`}</span>
+                  <span className="text-xl font-bold">{`${recipe.nutrition.carbohydrates}g`}</span>
                   <span className="text-sm font-semibold text-[#f7c7b3]">
                     carbs
                   </span>
@@ -86,7 +87,7 @@ export function RecipeSelectedBox({
               <div className="flex flex-col justify-end">
                 <a
                   className="cursor-pointer text-lg font-semibold underline"
-                  href={`/recipes/${recipe.id}`}
+                  href={`/recipes/${recipe.post.id}`}
                   target="_blank"
                   rel="noreferrer"
                 >
