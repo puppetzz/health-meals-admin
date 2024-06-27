@@ -27,6 +27,8 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { useRecipesQuery } from '../../queries';
 import { useFoodCategoriesQuery } from '../../queries/useFoodCategories';
+import { useDeleteRecipeMutation } from '../../mutation/useDeleteRecipe';
+import { notifications } from '@mantine/notifications';
 
 export default function Recipes() {
   const [openedSearchBox, { toggle: toggleSearchBox }] = useDisclosure(false);
@@ -49,6 +51,8 @@ export default function Recipes() {
     search,
     categoryId: Number(searchParams.get('categoryId')) || undefined,
   });
+
+  const deleteRecipeMutation = useDeleteRecipeMutation();
 
   const { data: foodCategories } = useFoodCategoriesQuery();
 
@@ -117,6 +121,26 @@ export default function Recipes() {
 
     return data.data.recipes;
   }, [data]);
+
+  const handleDelete = (id: number) => {
+    deleteRecipeMutation
+      .mutateAsync(id)
+      .then(() => {
+        notifications.show({
+          title: 'Xoá Công Thức',
+          color: 'green',
+          message: 'Xoá Công Thức Thành Công',
+        });
+        refetch();
+      })
+      .catch((error) => {
+        notifications.show({
+          title: 'Xoá Công Thức',
+          color: 'red',
+          message: `Đã có lỗi: ${error.response.data.message}`,
+        });
+      });
+  };
 
   useEffect(() => {
     refetch();
@@ -262,6 +286,7 @@ export default function Recipes() {
                         variant="filled"
                         aria-label="edit"
                         color="red"
+                        onClick={() => handleDelete(recipe.id)}
                       >
                         <IconTrash
                           style={{ width: '70%', height: '70%' }}

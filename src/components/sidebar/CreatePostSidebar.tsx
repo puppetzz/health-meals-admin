@@ -16,6 +16,7 @@ import { ENutritionUnit } from '../../common/enums/NutritionUnit';
 import { TNutritionInputFields } from '../../common/types/form/NutritionInputField';
 import { TRecipeOptionInputField } from '../../common/types/form/RecipeOptionInputField';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { EPostStatus } from '../../common/enums/PostStatus';
 
 type CreatePostSidebarProps = {
   postCategories: TPostCategory[];
@@ -30,7 +31,7 @@ type CreatePostSidebarProps = {
   setFoodCategoriesSelected: (categories: string[]) => void;
   postCategoriesSelected: string[];
   setPostCategoriesSelected: (categories: string[]) => void;
-  handleSaveDraft: () => void;
+  handleSubmit: (status: EPostStatus) => void;
 };
 
 export function CreatePostSidebar({
@@ -46,85 +47,24 @@ export function CreatePostSidebar({
   setFoodCategoriesSelected,
   postCategoriesSelected,
   setPostCategoriesSelected,
-  handleSaveDraft,
+  handleSubmit,
 }: CreatePostSidebarProps) {
-  const [postCategoriesOpened, { toggle: togglePostCategories }] =
-    useDisclosure(false);
   const [foodCategoriesOpened, { toggle: toggleFoodCategories }] =
-    useDisclosure(false);
-  const [summaryOpened, { toggle: toggleSummary }] = useDisclosure(false);
+    useDisclosure(true);
   const [recipeOptionOpened, { toggle: toggleRecipeOption }] =
     useDisclosure(true);
   const [nutritionOpened, { toggle: toggleNutrition }] = useDisclosure(true);
 
   return (
     <div className="h-[calc(100vh-57px)] min-w-[300px] border-l-[1px]">
-      <Tabs defaultValue="post" color="orange" className="pt-1">
+      <Tabs defaultValue="categories" color="orange" className="pt-1">
         <Tabs.List>
-          <Tabs.Tab value="post">Bài Viết</Tabs.Tab>
           <Tabs.Tab value="categories">Thể Loại</Tabs.Tab>
           {isRecipe && <Tabs.Tab value="recipe">Công Thức</Tabs.Tab>}
         </Tabs.List>
 
         <div className="h-[calc(100vh-150px)] overflow-y-auto">
-          <Tabs.Panel value="post">
-            <div
-              className="flex h-11 w-full items-center justify-between px-3 hover:bg-gray-100"
-              onClick={toggleSummary}
-            >
-              <span>Summary</span>
-              {summaryOpened ? (
-                <IconChevronUp className="h-5 w-5" />
-              ) : (
-                <IconChevronDown className="h-5 w-5" />
-              )}
-            </div>
-            {/* <div className="mt-1 px-3">
-              <Checkbox
-                label="The post is recipe"
-                checked={isRecipe}
-                onChange={(event) => setIsRecipe(event.currentTarget.checked)}
-                color="orange"
-              />
-            </div> */}
-          </Tabs.Panel>
-
           <Tabs.Panel value="categories">
-            {/* <div className="mb-1">
-              <Box maw={400} mx="auto">
-                <div
-                  className="flex h-11 w-full items-center justify-between px-3 hover:bg-gray-100"
-                  onClick={togglePostCategories}
-                >
-                  <span>Post categories</span>
-                  {postCategoriesOpened ? (
-                    <IconChevronUp className="h-5 w-5" />
-                  ) : (
-                    <IconChevronDown className="h-5 w-5" />
-                  )}
-                </div>
-
-                <Collapse in={postCategoriesOpened}>
-                  <div className="mx-3 mt-1">
-                    <Checkbox.Group
-                      value={postCategoriesSelected}
-                      onChange={setPostCategoriesSelected}
-                    >
-                      <div className="flex flex-col gap-1">
-                        {postCategories?.map((category) => (
-                          <Checkbox
-                            key={category.id}
-                            value={category.id.toString()}
-                            label={category.name}
-                            color="orange"
-                          />
-                        ))}
-                      </div>
-                    </Checkbox.Group>
-                  </div>
-                </Collapse>
-              </Box>
-            </div> */}
             <div className="mb-1">
               <Box maw={400} mx="auto">
                 <div
@@ -227,6 +167,17 @@ export function CreatePostSidebar({
                         }
                       />
                     </div>
+                    <NumberInput
+                      withAsterisk
+                      label="Một khẩu phần(g)"
+                      value={recipeOptions.servingSize}
+                      onChange={(value) =>
+                        setRecipeOptions({
+                          ...recipeOptions,
+                          servingSize: Number(value),
+                        })
+                      }
+                    />
                     <TextInput
                       withAsterisk
                       label="Thời gian có thể để lại"
@@ -236,18 +187,6 @@ export function CreatePostSidebar({
                         setRecipeOptions({
                           ...recipeOptions,
                           keeping: event.currentTarget.value,
-                        })
-                      }
-                    />
-                    <TextInput
-                      withAsterisk
-                      label="Thời gian có thể bảo quản lạnh"
-                      className=""
-                      value={recipeOptions.freezer}
-                      onChange={(event) =>
-                        setRecipeOptions({
-                          ...recipeOptions,
-                          freezer: event.currentTarget.value,
                         })
                       }
                     />
@@ -434,12 +373,21 @@ export function CreatePostSidebar({
         </div>
       </Tabs>
       <div className="flex justify-center gap-3 pt-1">
-        <Button variant="outline" color="orange" onClick={handleSaveDraft}>
-          Lưu Bản Nháp
-        </Button>
-        <Button variant="filled" color="orange">
-          Lưu & Phát Hành
-        </Button>
+        <>
+          <Button
+            color="orange"
+            variant="outline"
+            onClick={() => handleSubmit(EPostStatus.DRAFT)}
+          >
+            Lưu
+          </Button>
+          <Button
+            color="orange"
+            onClick={() => handleSubmit(EPostStatus.PUBLISH)}
+          >
+            Chia Sẻ
+          </Button>
+        </>
       </div>
     </div>
   );

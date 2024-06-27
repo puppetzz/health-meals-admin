@@ -8,12 +8,11 @@ export type TCreateRecipeRequest = {
   prepTime: number;
   cookTime: number;
   servings: number;
+  servingSize: number;
   calculationUnit: string;
   keeping: string;
-  freezer: string;
   ingredients?: TIngredientRequest[];
   foodCategoryIds: number[];
-  postCategoryIds: number[];
   calories: number;
   protein: number;
   carbohydrates: number;

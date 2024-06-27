@@ -24,6 +24,7 @@ import { TUpdateRecipeRequest } from '../../../../common/types/request/recipes/U
 import { useUpdateRecipeMutation } from '../../../../mutation/useUpdateRecipe';
 import { TIngredientRequest } from '../../../../common/types/request/recipes/Ingredient';
 import { useRouter } from 'next/navigation';
+import { EPostStatus } from '../../../../common/enums/PostStatus';
 
 const BlockNote = dynamic(
   () =>
@@ -74,9 +75,9 @@ export default function EditRecipes({ params }: { params: { id: string } }) {
     prepTime: 0,
     cookTime: 0,
     servings: 0,
+    servingSize: 0,
     unit: '',
     keeping: '',
-    freezer: '',
   });
   const [foodCategoriesSelected, setFoodCategoriesSelected] = useState<
     string[]
@@ -147,6 +148,15 @@ export default function EditRecipes({ params }: { params: { id: string } }) {
       return;
     }
 
+    if (!title) {
+      notifications.show({
+        title: 'Failed to save draft',
+        message: 'Title is required',
+        color: 'red',
+      });
+      return;
+    }
+
     const ingredients: TIngredientRequest[] = inputFields
       .filter((field) => field.name && field.amount && field.unit)
       .map((field) => ({
@@ -186,9 +196,9 @@ export default function EditRecipes({ params }: { params: { id: string } }) {
       prepTime: recipeOptions.prepTime,
       cookTime: recipeOptions.cookTime,
       servings: recipeOptions.servings,
+      servingSize: recipeOptions.servingSize,
       calculationUnit: recipeOptions.unit,
       keeping: recipeOptions.keeping,
-      freezer: recipeOptions.freezer,
       calories: nutrition.calories,
       protein: nutrition.protein,
       carbohydrates: nutrition.carbohydrates,
@@ -210,12 +220,12 @@ export default function EditRecipes({ params }: { params: { id: string } }) {
     };
 
     updateRecipeMutation.mutateAsync(data).then(() => {
-      notifications.show({
-        title: 'Update Recipe',
-        color: 'green',
-        message: 'Update recipe successfully!',
-      });
       router.push('/recipes');
+      notifications.show({
+        title: 'Update Recipes',
+        color: 'green',
+        message: 'Update Successfully!',
+      });
     });
   };
 
@@ -239,9 +249,9 @@ export default function EditRecipes({ params }: { params: { id: string } }) {
           prepTime: recipe.data.recipe.prepTime,
           cookTime: recipe.data.recipe.cookTime,
           servings: recipe.data.recipe.servings,
+          servingSize: recipe.data.recipe.servingSize,
           unit: recipe.data.recipe.calculationUnit,
           keeping: recipe.data.recipe.keeping,
-          freezer: recipe.data.recipe.freezer,
         });
 
         setFoodCategoriesSelected(

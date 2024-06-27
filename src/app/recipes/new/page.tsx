@@ -4,7 +4,7 @@ import { useUploadFile } from '../../../hooks';
 import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { Anchor, Breadcrumbs, Group, Text } from '@mantine/core';
 import { Image } from '@mantine/core';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import { CreatePostSidebar } from '../../../components/sidebar/CreatePostSidebar';
 import {
@@ -23,6 +23,8 @@ import { TRecipeOptionInputField } from '../../../common/types/form/RecipeOption
 import { useCreateRecipeMutation } from '../../../mutation/useCreateRecipe';
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
 import { TIngredientRequest } from '../../../common/types/request/recipes/Ingredient';
+import { useRouter } from 'next/navigation';
+import { EPostStatus } from '../../../common/enums/PostStatus';
 
 const BlockNote = dynamic(
   () => import('../../../components/blog/BlockNote').then((mod) => mod.default),
@@ -32,6 +34,7 @@ const BlockNote = dynamic(
 );
 
 export default function CreatePost() {
+  const router = useRouter();
   const [opened, { toggle }] = useDisclosure(true);
   const uploadFile = useUploadFile();
 
@@ -65,9 +68,9 @@ export default function CreatePost() {
     prepTime: 0,
     cookTime: 0,
     servings: 0,
+    servingSize: 0,
     unit: '',
     keeping: '',
-    freezer: '',
   });
   const [foodCategoriesSelected, setFoodCategoriesSelected] = useState<
     string[]
@@ -114,106 +117,176 @@ export default function CreatePost() {
     setInputFields(data);
   };
 
-  const handleSaveDraft = async () => {
-    const thumbnail = files.length > 0 ? await uploadFile(files[0]) : null;
+  const handleSave = useCallback(
+    async (status: EPostStatus) => {
+      const thumbnail = files.length > 0 ? await uploadFile(files[0]) : null;
 
-    if (!thumbnail) {
-      notifications.show({
-        title: 'Failed to save draft',
-        message: 'Thumbnail is required',
-        color: 'red',
-      });
-      return;
-    }
+      if (!thumbnail) {
+        notifications.show({
+          title: 'Tạo Công Thức Không Thành Công',
+          message: 'Thumbnail không được để trống',
+          color: 'red',
+        });
+        return;
+      }
 
-    const status = 'draft';
+      if (!title) {
+        notifications.show({
+          title: 'Tạo Công Thức Không Thành Công',
+          message: 'Tiêu đề không được để trống',
+          color: 'red',
+        });
+        return;
+      }
 
-    const content = getContent();
+      const content = getContent();
 
-    if (!content) {
-      notifications.show({
-        title: 'Failed to save draft',
-        message: 'Content is required',
-        color: 'red',
-      });
-      return;
-    }
+      if (!content) {
+        notifications.show({
+          title: 'Tạo Công Thức Không Thành Công',
+          message: 'Nội dung không được để trống',
+          color: 'red',
+        });
+        return;
+      }
 
-    const ingredients: TIngredientRequest[] = inputFields
-      .filter((field) => field.name && field.amount && field.unit)
-      .map((field) => ({
-        name: field.name,
-        description: field.description,
-        amount: parseFloat(field.amount),
-        unit: field.unit,
-      }));
+      if (!nutrition.calories) {
+        notifications.show({
+          title: 'Tạo Công Thức Không Thành Công',
+          message: 'Bạn phải nhập lượng calo cho công thức',
+          color: 'red',
+        });
+        return;
+      }
+      if (!nutrition.fat) {
+        notifications.show({
+          title: 'Tạo Công Thức Không Thành Công',
+          message: 'Bạn phải nhập lượng chất béo cho công thức',
+          color: 'red',
+        });
+        return;
+      }
+      if (!nutrition.carbohydrates) {
+        notifications.show({
+          title: 'Tạo Công Thức Không Thành Công',
+          message: 'Bạn phải nhập lượng carbs cho công thức',
+          color: 'red',
+        });
+        return;
+      }
+      if (!nutrition.protein) {
+        notifications.show({
+          title: 'Tạo Công Thức Không Thành Công',
+          message: 'Bạn phải nhập lượng protein cho công thức',
+          color: 'red',
+        });
+        return;
+      }
 
-    if (ingredients.length !== inputFields.length) {
-      notifications.show({
-        title: 'Failed to save draft',
-        message: 'All ingredient fields are required',
-        color: 'red',
-      });
-      return;
-    }
+      const ingredients: TIngredientRequest[] = inputFields
+        .filter((field) => field.name && field.amount && field.unit)
+        .map((field) => ({
+          name: field.name,
+          description: field.description,
+          amount: parseFloat(field.amount),
+          unit: field.unit,
+        }));
 
-    const foodCategories = foodCategoriesSelected.map(Number);
+      if (ingredients.length !== inputFields.length) {
+        notifications.show({
+          title: 'Tạo Công Thức Không Thành Công',
+          message: 'Bạn phải nhập đầy đủ các thành phần',
+          color: 'red',
+        });
+        return;
+      }
 
-    if (foodCategories.length < 1) {
-      notifications.show({
-        title: 'Failed to save draft',
-        message: 'Food category is required',
-        color: 'red',
-      });
-      return;
-    }
+      const foodCategories = foodCategoriesSelected.map(Number);
 
-    const postCategories = postCategoriesSelected.map(Number);
+      if (foodCategories.length < 1) {
+        notifications.show({
+          title: 'Tạo Công Thức Không Thành Công',
+          message: 'Bạn phải chọn ít nhất 1 thể loại cho công thức',
+          color: 'red',
+        });
+        return;
+      }
 
-    if (postCategories.length < 1) {
-      notifications.show({
-        title: 'Failed to save draft',
-        message: 'Post category is required',
-        color: 'red',
-      });
-      return;
-    }
+      for (const [key, value] of Object.entries(recipeOptions)) {
+        if (!value || value === 0) {
+          notifications.show({
+            title: 'Tạo Công Thức Không Thành Công',
+            message: `${key} không được để trống`,
+            color: 'red',
+          });
+          return;
+        }
+      }
 
-    const data: TCreateRecipeRequest = {
-      status,
-      thumbnail,
+      const data: TCreateRecipeRequest = {
+        status: status,
+        thumbnail,
+        title,
+        content,
+        ingredients,
+        prepTime: recipeOptions.prepTime,
+        cookTime: recipeOptions.cookTime,
+        servings: recipeOptions.servings,
+        servingSize: recipeOptions.servingSize,
+        calculationUnit: recipeOptions.unit,
+        keeping: recipeOptions.keeping,
+        calories: nutrition.calories,
+        protein: nutrition.protein,
+        carbohydrates: nutrition.carbohydrates,
+        fat: nutrition.fat,
+        saturatedFat: nutrition.saturatedFat,
+        polyunsaturatedFat: nutrition.polyunsaturatedFat,
+        monounsaturatedFat: nutrition.monounsaturatedFat,
+        transFat: nutrition.transFat,
+        cholesterol: nutrition.cholesterol,
+        sodium: nutrition.sodium,
+        potassium: nutrition.potassium,
+        fiber: nutrition.fiber,
+        sugar: nutrition.sugar,
+        vitaminA: nutrition.vitaminA,
+        vitaminC: nutrition.vitaminC,
+        calcium: nutrition.calcium,
+        iron: nutrition.iron,
+        foodCategoryIds: foodCategories,
+      };
+
+      createRecipeMutation
+        .mutateAsync(data)
+        .then(() => {
+          router.push('/recipes');
+          notifications.show({
+            title: 'Tạo Công Thức',
+            color: 'green',
+            message: 'Tạo công thức thành công!',
+          });
+          localStorage.removeItem(POST_CONTENT_LOCAL_STORAGE_KEY);
+        })
+        .catch((error) => {
+          notifications.show({
+            title: 'Đã Có Lỗi Xảy Ra',
+            color: 'red',
+            message: error.response.data.message,
+          });
+        });
+    },
+    [
+      files,
+      inputFields,
+      foodCategoriesSelected,
+      createRecipeMutation,
+      getContent,
+      nutrition,
+      recipeOptions,
+      router,
       title,
-      content,
-      ingredients,
-      prepTime: recipeOptions.prepTime,
-      cookTime: recipeOptions.cookTime,
-      servings: recipeOptions.servings,
-      calculationUnit: recipeOptions.unit,
-      keeping: recipeOptions.keeping,
-      freezer: recipeOptions.freezer,
-      calories: nutrition.calories,
-      protein: nutrition.protein,
-      carbohydrates: nutrition.carbohydrates,
-      fat: nutrition.fat,
-      saturatedFat: nutrition.saturatedFat,
-      polyunsaturatedFat: nutrition.polyunsaturatedFat,
-      monounsaturatedFat: nutrition.monounsaturatedFat,
-      transFat: nutrition.transFat,
-      cholesterol: nutrition.cholesterol,
-      sodium: nutrition.sodium,
-      potassium: nutrition.potassium,
-      fiber: nutrition.fiber,
-      sugar: nutrition.sugar,
-      vitaminA: nutrition.vitaminA,
-      vitaminC: nutrition.vitaminC,
-      calcium: nutrition.calcium,
-      iron: nutrition.iron,
-      foodCategoryIds: foodCategories,
-      postCategoryIds: postCategories,
-    };
-
-    createRecipeMutation.mutate(data);
-  };
+      uploadFile,
+    ]
+  );
 
   return (
     <>
@@ -303,7 +376,7 @@ export default function CreatePost() {
             setFoodCategoriesSelected={setFoodCategoriesSelected}
             postCategoriesSelected={postCategoriesSelected}
             setPostCategoriesSelected={setPostCategoriesSelected}
-            handleSaveDraft={handleSaveDraft}
+            handleSubmit={handleSave}
           />
         )}
       </div>

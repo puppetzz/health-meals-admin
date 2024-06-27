@@ -1,6 +1,7 @@
 export enum EPostStatus {
-  DRAFT = 'draft',
-  PENDING = 'pending',
-  ACCEPTED = 'accepted',
-  REJECTED = 'rejected',
+  DRAFT = 'DRAFT',
+  PENDING = 'PENDING',
+  PUBLISH = 'PUBLISH',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
 }

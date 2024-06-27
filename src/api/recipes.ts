@@ -67,3 +67,12 @@ export const reviewRecipe = async (
 
   return response.data;
 };
+
+export const deleteRecipe = async (id: number) => {
+  const response = await axiosClient({
+    url: `${API.RECIPES}/${id}`,
+    method: 'DELETE',
+  });
+
+  return response.data;
+};

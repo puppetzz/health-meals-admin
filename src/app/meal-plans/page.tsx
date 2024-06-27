@@ -23,6 +23,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { useMealPlansQuery } from '../../queries/useMealPlans';
 import { useDeleteMealPlanMutation } from '../../mutation/useDeleteMealPlan';
+import { notifications } from '@mantine/notifications';
 
 export default function MealPlans() {
   const [openedSearchBox, { toggle: toggleSearchBox }] = useDisclosure(false);
@@ -75,9 +76,25 @@ export default function MealPlans() {
   }, [data]);
 
   const handleDeleteMealPlan = (id: number) => {
-    deleteMealPlanMutation.mutateAsync(id).then(() => {
-      refetch();
-    });
+    deleteMealPlanMutation
+      .mutateAsync(id)
+      .then(() => {
+        refetch();
+      })
+      .then(() => {
+        notifications.show({
+          title: 'Xoá Kế Hoạch',
+          color: 'green',
+          message: 'Xoá kế hoạch thành công',
+        });
+      })
+      .catch((error) => {
+        notifications.show({
+          title: 'Xoá Kế Hoạch',
+          color: 'red',
+          message: `Đã có lỗi: ${error.response.data.message}`,
+        });
+      });
   };
 
   useEffect(() => {
