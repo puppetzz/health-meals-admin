@@ -10,4 +10,5 @@ export const QueryKey = {
   GET_MEAL_PLAN_COMMENTS: 'get-meal-plan-comments',
   GET_COMMENTS_BY_POST_ID: 'get-comments-by-post-id',
   GET_HEALTH_METRICS: 'get-health-metrics',
+  GET_NOTIFICATIONS: 'get-notifications',
 };

@@ -1,4 +1,5 @@
 import { API } from '../common/constants';
+import { EReviewStatus } from '../common/enums/review-recipe-status.enum';
 import { TResponse } from '../common/types';
 import { TCreateMealPlanRequest } from '../common/types/meal-plan/CreateMealPlan';
 import { TMealPlan } from '../common/types/MealPlan';
@@ -51,6 +52,23 @@ export const updateMealPlan = async (data: TUpdateMealPlanRequest) => {
     url: API.MEAL_PLANS,
     method: 'PUT',
     data,
+  });
+
+  return response.data;
+};
+
+export const reviewMealPlan = async (
+  id: number,
+  status: EReviewStatus,
+  notificationId: number
+) => {
+  const response = await axiosClient({
+    url: `${API.REVIEW_MEAL_PLANS}/${id}`,
+    method: 'PUT',
+    data: {
+      status,
+      notificationId,
+    },
   });
 
   return response.data;

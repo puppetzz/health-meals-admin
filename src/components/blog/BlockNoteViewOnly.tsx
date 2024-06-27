@@ -1,5 +1,8 @@
 'use client';
 
+import '@blocknote/core/fonts/inter.css';
+import '@blocknote/mantine/style.css';
+import '../../styles/blocknote.css';
 import { BlockNoteView } from '@blocknote/mantine';
 import { useCreateBlockNote } from '@blocknote/react';
 import { isJSON } from '../../utils/isJSON';

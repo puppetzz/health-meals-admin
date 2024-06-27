@@ -12,6 +12,7 @@ import { ColorSchemeScript, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { Sidebar } from '../components/Sidebar';
 import { Navbar } from '../components/Navbar';
+import { SocketProvider } from '../context/SocketContext';
 
 const fontSans = FontSans({
   subsets: ['latin'],
@@ -45,16 +46,18 @@ export default function RootLayout({
         <QueryProvider>
           <MantineProvider>
             <AuthProvider>
-              <Notifications position="top-right" zIndex={1000} />
-              <div className="relative flex min-h-svh">
-                <div className="relative min-h-svh">
-                  <Sidebar />
+              <SocketProvider>
+                <Notifications position="top-right" zIndex={1000} />
+                <div className="relative flex min-h-svh">
+                  <div className="relative min-h-svh">
+                    <Sidebar />
+                  </div>
+                  <div className="grow bg-gray-100">
+                    <Navbar />
+                    {children}
+                  </div>
                 </div>
-                <div className="grow bg-gray-100">
-                  <Navbar />
-                  {children}
-                </div>
-              </div>
+              </SocketProvider>
             </AuthProvider>
           </MantineProvider>
         </QueryProvider>

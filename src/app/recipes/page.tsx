@@ -56,7 +56,7 @@ export default function Recipes() {
     if (!foodCategories?.data) return [];
 
     return foodCategories.data.map((foodCategory) => ({
-      value: foodCategory.key,
+      value: foodCategory.id.toString(),
       label: foodCategory.name,
     }));
   }, [foodCategories]);

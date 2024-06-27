@@ -12,6 +12,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_BASE_URL: z.string(),
   NEXT_PUBLIC_AWS_S3_BUCKET: z.string(),
   NEXT_PUBLIC_AWS_S3_REGION: z.string(),
+  WS_URL: z.string(),
 });
 
 export const envs = envSchema.parse({
@@ -26,4 +27,6 @@ export const envs = envSchema.parse({
   NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
   NEXT_PUBLIC_AWS_S3_BUCKET: process.env.NEXT_PUBLIC_AWS_S3_BUCKET,
   NEXT_PUBLIC_AWS_S3_REGION: process.env.NEXT_PUBLIC_AWS_S3_REGION,
+
+  WS_URL: process.env.NEXT_PUBLIC_WS_URL,
 });

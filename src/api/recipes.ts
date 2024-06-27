@@ -1,4 +1,5 @@
 import { API } from '../common/constants';
+import { EReviewStatus } from '../common/enums/review-recipe-status.enum';
 import { TResponse } from '../common/types';
 import { TPost } from '../common/types/Post';
 import { TCreateRecipeRequest } from '../common/types/request/recipes/CreateRecipe';
@@ -45,6 +46,23 @@ export const updateRecipes = async (data: TUpdateRecipeRequest) => {
     url: API.RECIPES,
     method: 'PUT',
     data,
+  });
+
+  return response.data;
+};
+
+export const reviewRecipe = async (
+  id: number,
+  status: EReviewStatus,
+  notificationId: number
+) => {
+  const response = await axiosClient({
+    url: `${API.REVIEW_RECIPES}/${id}`,
+    method: 'PUT',
+    data: {
+      status,
+      notificationId,
+    },
   });
 
   return response.data;
