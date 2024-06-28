@@ -1,8 +1,8 @@
 'use client';
 
-import { Avatar, Button, Indicator, Popover } from '@mantine/core';
+import { Avatar, Button, Indicator, Menu, Popover, rem } from '@mantine/core';
 import { useAuth } from '@/context/AuthContext';
-import { IconBellFilled } from '@tabler/icons-react';
+import { IconBellFilled, IconLogout } from '@tabler/icons-react';
 import { Black_Ops_One } from 'next/font/google';
 import { useRouter } from 'next/navigation';
 import { useNotificationsQuery } from '../queries/useNotification';
@@ -19,7 +19,7 @@ const blackOpsOne = Black_Ops_One({
 });
 
 export function Navbar() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const router = useRouter();
   const [
     openedRecipeReviewModal,
@@ -144,7 +144,22 @@ export function Navbar() {
               </div>
             </Popover.Dropdown>
           </Popover>
-          <Avatar src={user?.photoURL} />
+          <Menu shadow="md" width={200}>
+            <Menu.Target>
+              <Avatar src={user?.photoURL} alt="avatar" />
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={
+                  <IconLogout style={{ width: rem(14), height: rem(14) }} />
+                }
+                color="red"
+                onClick={signOut}
+              >
+                Đăng Xuất
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
         </div>
       </nav>
       <ReviewModal
